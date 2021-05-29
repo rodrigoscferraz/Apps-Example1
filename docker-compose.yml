@@ -1,0 +1,27 @@
+version: '3'
+services:
+  php:
+    build: ./php_app
+    command: php -S 0.0.0.0:8080 -t app/
+    depends_on:
+      - python
+    environment:
+      - PY_APP_URL=http://python:9090
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./php_app:/app
+  python:
+    build: ./py_app
+    command: flask run --host=0.0.0.0 --port=9090
+    depends_on:
+      - redis
+    environment:
+      - FLASK_APP=app.py
+      - REDIS_URL=redis://redis:6379/0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./py_app:/app
+  redis:
+    image: redis:3.0-alpine
